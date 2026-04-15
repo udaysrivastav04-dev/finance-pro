@@ -225,59 +225,70 @@ def get_budget():
 @app.route('/transactions', methods=['GET', 'POST'])
 def transactions():
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    # -------- GET TRANSACTIONS --------
     if request.method == 'GET':
-        user_id = request.args.get('user_id')
-        if not user_id:
+        try:
+            cur.execute("""
+                SELECT id, user_id, amount, category, type, date
+                FROM transactions ORDER BY id DESC
+            """)
+            rows = safe_fetchall(cur)
             cur.close()
-            return jsonify({'status': 'error', 'message': 'user_id required'}), 400
-        cur.execute(
-            """SELECT txn_id, user_id, category, amount, type, date, created_at 
-               FROM transactions WHERE user_id=%s 
-               ORDER BY date DESC, created_at DESC""",
-            (user_id,)
-        )
-        rows = safe_fetchall(cur)
+            return jsonify({'status': 'success', 'transactions': rows}), 200
+
+        except Exception as e:
+            cur.close()
+            return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    # -------- ADD TRANSACTION (POST) --------
+    try:
+        data = request.get_json(force=True)
+
+        user_id = data.get('user_id')
+        amount = data.get('amount')
+        category = data.get('category')
+        type_ = data.get('type')
+        date = data.get('date')
+
+        if not all([user_id, amount, category, type_, date]):
+            return jsonify({'status': 'error', 'message': 'All fields required'}), 400
+
+        cur.execute("""
+            INSERT INTO transactions (user_id, amount, category, type, date)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (user_id, amount, category, type_, date))
+
+        mysql.connection.commit()
         cur.close()
-        return jsonify({'status': 'success', 'transactions': rows}), 200
 
-    data = request.get_json() or {}
-    user_id = data.get('user_id')
-    category = data.get('category')
-    amount = data.get('amount')
-    txn_type = data.get('type')
-    date = data.get('date')
+        return jsonify({'status': 'success', 'message': 'Transaction added'}), 200
 
-    if not all([user_id, category, amount, txn_type, date]):
+    except Exception as e:
         cur.close()
-        return jsonify({'status': 'error', 'message': 'All fields required'}), 400
-
-    cur.execute(
-        "INSERT INTO transactions (user_id, category, amount, type, date) VALUES (%s,%s,%s,%s,%s)",
-        (user_id, category, amount, txn_type, date)
-    )
-    mysql.connection.commit()
-    cur.close()
-    return jsonify({'status': 'success', 'message': 'Transaction added'}), 200
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 # ---------- GOALS ----------
 @app.route('/goals', methods=['GET', 'POST'])
 def goals():
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    if request.method == 'GET':
-        user_id = request.args.get('user_id')
-        if not user_id:
-            cur.close()
-            return jsonify({'status': 'error', 'message': 'user_id required'}), 400
-        cur.execute(
-            """SELECT goal_id, user_id, name, target, saved, date, status 
-               FROM goals WHERE user_id=%s ORDER BY goal_id DESC""",
-            (user_id,)
-        )
-        rows = safe_fetchall(cur)
-        cur.close()
-        return jsonify({'status': 'success', 'goals': rows}), 200
 
-    data = request.get_json() or {}
+    if request.method == 'GET':
+        try:
+            cur.execute("""
+                SELECT goal_id, user_id, name, target, saved, date, status
+                FROM goals ORDER BY goal_id DESC
+            """)
+            rows = safe_fetchall(cur)
+            cur.close()
+            return jsonify({'status': 'success', 'goals': rows}), 200
+
+        except Exception as e:
+            cur.close()
+            return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    # 👇 POST part same rehne do
+    data = request.get_json(force=True)
     user_id = data.get('user_id')
     name = data.get('name')
     target = data.get('target')
