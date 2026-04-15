@@ -17,7 +17,7 @@ if (loginTrigger) {
 }
 
 const ui = (function(){
-  const API_BASE = "https://your-app.onrender.com";
+  const API_BASE = "https://finance-pro-e56u.onrender.com";
 
   // ---- Helpers ----
   function getUser(){ return JSON.parse(localStorage.getItem('fa_user') || 'null'); }
