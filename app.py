@@ -19,52 +19,76 @@ def safe_fetchall(cursor):
 # ---------- SIGNUP ----------
 @app.route('/signup', methods=['POST'])
 def signup():
-    data = request.get_json() or {}
-    name = data.get('name')
-    email = data.get('email')
-    password = data.get('password')
+    try:
+        data = request.get_json(force=True)
 
-    if not all([name, email, password]):
-        return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
+        name = data.get('name')
+        email = data.get('email')
+        password = data.get('password')
 
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cur.execute("SELECT * FROM users WHERE email=%s", (email,))
-    if cur.fetchone():
+        if not all([name, email, password]):
+            return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
+
+        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+        cur.execute("SELECT * FROM users WHERE email=%s", (email,))
+        if cur.fetchone():
+            cur.close()
+            return jsonify({'status': 'error', 'message': 'Account already exists'}), 400
+
+        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+        cur.execute(
+            "INSERT INTO users (name, email, password_hash) VALUES (%s,%s,%s)",
+            (name, email, hashed)
+        )
+
+        mysql.connection.commit()
         cur.close()
-        return jsonify({'status': 'error', 'message': 'Account already exists'}), 400
 
-    hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    cur.execute(
-        "INSERT INTO users (name, email, password_hash) VALUES (%s,%s,%s)",
-        (name, email, hashed)
-    )
-    mysql.connection.commit()
-    cur.close()
-    return jsonify({'status': 'success', 'message': 'Account created successfully'}), 200
+        return jsonify({'status': 'success', 'message': 'Account created successfully'}), 200
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 # ---------- LOGIN ----------
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.get_json() or {}
-    email = data.get('email')
-    password = data.get('password')
+    try:
+        data = request.get_json(force=True)
 
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cur.execute("SELECT * FROM users WHERE email=%s", (email,))
-    user = cur.fetchone()
-    cur.close()
+        email = data.get('email')
+        password = data.get('password')
 
-    if user and bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
-        return jsonify({
-            'status': 'success',
-            'user': {
-                'id': user['user_id'],
-                'name': user['name'],
-                'email': user['email']
-            }
-        }), 200
-    
-    return jsonify({'status': 'error', 'message': 'Invalid email or password'}), 401
+        if not email or not password:
+            return jsonify({'status': 'error', 'message': 'Missing fields'}), 400
+
+        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute("SELECT * FROM users WHERE email=%s", (email,))
+        user = cur.fetchone()
+        cur.close()
+
+        if user:
+            stored_hash = user['password_hash']
+
+            # handle both cases (bytes or string)
+            if isinstance(stored_hash, str):
+                stored_hash = stored_hash.encode('utf-8')
+
+            if bcrypt.checkpw(password.encode('utf-8'), stored_hash):
+                return jsonify({
+                    'status': 'success',
+                    'user': {
+                        'id': user['user_id'],
+                        'name': user['name'],
+                        'email': user['email']
+                    }
+                }), 200
+
+        return jsonify({'status': 'error', 'message': 'Invalid email or password'}), 401
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 # ---------- BUDGET: Add Budget (POST) ----------
 @app.route('/add_budget', methods=['POST'])
