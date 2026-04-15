@@ -273,39 +273,49 @@ def transactions():
 def goals():
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
+    # -------- GET GOALS --------
     if request.method == 'GET':
         try:
             cur.execute("""
                 SELECT goal_id, user_id, name, target, saved, date, status
                 FROM goals ORDER BY goal_id DESC
             """)
-            rows = safe_fetchall(cur)
+            rows = cur.fetchall()
             cur.close()
-            return jsonify({'status': 'success', 'goals': rows}), 200
+
+            return jsonify({'status': 'success', 'data': rows}), 200
 
         except Exception as e:
             cur.close()
             return jsonify({'status': 'error', 'message': str(e)}), 500
 
-    # 👇 POST part same rehne do
-    data = request.get_json(force=True)
-    user_id = data.get('user_id')
-    name = data.get('name')
-    target = data.get('target')
-    date = data.get('date')
-    saved = data.get('saved', 0)
+    # -------- ADD GOAL --------
+    try:
+        data = request.get_json(force=True)
 
-    if not all([user_id, name, target, date]):
+        user_id = data.get('user_id')
+        name = data.get('name')
+        target = data.get('target')
+        date = data.get('date')
+        saved = data.get('saved', 0)
+
+        if not all([user_id, name, target, date]):
+            cur.close()
+            return jsonify({'status': 'error', 'message': 'All fields required'}), 400
+
+        cur.execute("""
+            INSERT INTO goals (user_id, name, target, saved, date, status)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (user_id, name, target, saved, date, 'in_progress'))
+
+        mysql.connection.commit()
         cur.close()
-        return jsonify({'status': 'error', 'message': 'All fields required'}), 400
 
-    cur.execute(
-        "INSERT INTO goals (user_id, name, target, saved, date, status) VALUES (%s,%s,%s,%s,%s,%s)",
-        (user_id, name, target, saved, date, 'in_progress')
-    )
-    mysql.connection.commit()
-    cur.close()
-    return jsonify({'status': 'success', 'message': 'Goal added'}), 200
+        return jsonify({'status': 'success', 'message': 'Goal added'}), 200
+
+    except Exception as e:
+        cur.close()
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 # ---------- GOAL: UPDATE ----------
 @app.route('/update_goal', methods=['POST'])
