@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Finance Advisor — Budget</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand"><h2>💰 Finance Advisor</h2></div>
+      <nav>
+        <ul>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li class="active"><a href="budget.html">Budget</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="goals.html">Goals</a></li>
+          <li><a href="prediction.html">Predictions</a></li>
+          <li><a href="index.html" onclick="ui.logout()">Logout</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Monthly Budget</h1>
+        <p class="muted">Set and monitor your financial limits</p>
+      </header>
+
+      <!-- Add Budget Form -->
+      <section class="goal-form">
+        <input id="budgetAmount" type="number" placeholder="Enter monthly budget ₹" />
+        <button class="btn-primary" onclick="ui.addBudget()">Set Budget</button>
+      </section>
+
+      <!-- Current Month Summary -->
+      <section class="cards" id="budgetSummary">
+        <!-- Filled dynamically -->
+      </section>
+
+      <!-- Previous Months Overview -->
+      <section class="txn-list" style="margin-top:28px">
+        <h3>Previous 3 Months Overview</h3>
+        <div id="prevBudgetList"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toastContainer"></div>
+  <script src="script.js"></script>
+</body>
+</html>

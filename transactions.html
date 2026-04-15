@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Finance Advisor — Transactions</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><h2>💰 Finance Advisor</h2></div>
+      <nav>
+        <ul>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="budget.html">Budget</a></li>
+          <li class="active"><a href="transactions.html">Transactions</a></li>
+          <li><a href="goals.html">Goals</a></li>
+          <li><a href="prediction.html">Predictions</a></li>
+          <li><a href="index.html" onclick="ui.logout()">Logout</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Transactions</h1>
+        <p class="muted">Add or view your transactions</p>
+      </header>
+
+      <section class="txn-form">
+        <div class="form-row">
+          <input id="txnCategory" type="text" placeholder="Category (Food, Rent...)" />
+          <input id="txnAmount" type="number" placeholder="Amount ₹" />
+          <select id="txnType"><option value="expense">Expense</option><option value="income">Income</option></select>
+          <button class="btn-primary" onclick="ui.addTransaction()">Add</button>
+        </div>
+      </section>
+
+      <section class="txn-list">
+        <h3>Recent Transactions</h3>
+        <div id="txnList"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toastContainer"></div>
+  <script src="script.js"></script>
+</body>
+</html>

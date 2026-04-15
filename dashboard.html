@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Finance Advisor — Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><h2>💰 Finance Advisor</h2></div>
+      <nav>
+        <ul>
+          <li class="active"><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="budget.html">Budget</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="goals.html">Goals</a></li>
+          <li><a href="prediction.html">Predictions</a></li>
+          <li><a href="index.html" onclick="ui.logout()">Logout</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <h1>Welcome, <span id="userName">Guest</span></h1>
+          <p class="muted">Your finance overview</p>
+        </div>
+        <div class="top-actions">
+          <button class="chip" id="quickAddBtn">+ Add</button>
+        </div>
+      </header>
+
+      <section class="cards" id="summaryCards">
+        <div class="card"><h4>Total Income</h4><p id="incomeCard">₹0</p></div>
+        <div class="card"><h4>Total Expenses</h4><p id="expenseCard">₹0</p></div>
+        <div class="card"><h4>Predicted Savings</h4><p id="saveCard">₹0</p></div>
+      </section>
+
+      <section class="chart-section">
+        <div class="chart-card">
+          <div class="chart-title">
+            <h3>Monthly Expenses</h3>
+            <small class="muted">Last 6 months</small>
+          </div>
+          <canvas id="expenseChart"></canvas>
+        </div>
+
+        <aside class="small-cards">
+          <div class="mini-card"><h5>Active Goals</h5><p id="activeGoals">0</p></div>
+          <div class="mini-card"><h5>Budgets Exceeded</h5><p id="budgetAlerts">0</p></div>
+        </aside>
+      </section>
+
+      <!-- Hidden modal -->
+      <div id="quickModal" class="hidden" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.5)">
+        <div style="background:#0b2134;padding:18px;border-radius:12px;width:320px;color:#fff">
+          <h4>Add Transaction</h4>
+          <input id="quickCat" placeholder="Category" style="width:100%;padding:8px;margin-top:8px;background:#0b2134;color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:6px;outline:none"/>
+          <input id="quickAmt" type="number" placeholder="Amount" style="width:100%;padding:8px;margin-top:8px;background:#0b2134;color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:6px;outline:none"/>
+          <select id="quickType" style="width:100%;padding:8px;margin-top:8px;background:#0b2134;color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:6px;outline:none">
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+            <button class="btn-primary" id="quickSave">Add</button>
+            <button class="btn-primary" id="quickClose">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toastContainer"></div>
+  <script src="script.js"></script>
+</body>
+</html>

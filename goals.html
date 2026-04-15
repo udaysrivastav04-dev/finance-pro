@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Finance Advisor — Goals</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><h2>💰 Finance Advisor</h2></div>
+      <nav>
+        <ul>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="budget.html">Budget</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li class="active"><a href="goals.html">Goals</a></li>
+          <li><a href="prediction.html">Predictions</a></li>
+          <li><a href="index.html" onclick="ui.logout()">Logout</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Goals</h1>
+        <p class="muted">Set financial goals and track progress</p>
+      </header>
+
+      <section class="cards" style="margin-top:22px">
+        <div class="card"><h4>Total Goals</h4><p id="totalGoals">0</p></div>
+        <div class="card"><h4>In Progress</h4><p id="inProgressGoals">0</p></div>
+        <div class="card"><h4>Completed</h4><p id="completedGoals">0</p></div>
+      </section>
+
+      <section class="goal-form">
+        <input id="goalName" type="text" placeholder="Goal name (e.g., New Laptop)" />
+        <input id="goalAmount" type="number" placeholder="Target amount ₹" />
+        <input id="goalDate" type="date" />
+        <button class="btn-primary" onclick="ui.addGoal()">Add Goal</button>
+      </section>
+
+      <section class="goal-list" id="goalList"></section>
+    </main>
+  </div>
+
+  <div id="toastContainer"></div>
+  <script src="script.js"></script>
+</body>
+</html>
